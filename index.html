@@ -64,20 +64,29 @@
         alert(res.ok ? "Student saved successfully!" : "Error saving student.");
     };
 
-    // Handle Search
+    // Handle Search and Auto-fill
     async function fetchStudent() {
         const name = document.getElementById('searchName').value;
         const res = await fetch(`/api/get-student?name=${encodeURIComponent(name)}`);
         const data = await res.json();
+        
         if (data.student_name) {
-            alert("Student found! Check console for details.");
-            console.log(data);
+            document.querySelector('[name="name"]').value = data.student_name;
+            document.querySelector('[name="age"]').value = data.age;
+            document.querySelector('[name="motherName"]').value = data.mother_name;
+            document.querySelector('[name="fatherName"]').value = data.father_name;
+            document.querySelector('[name="birthDate"]').value = data.birth_date ? data.birth_date.split('T')[0] : '';
+            document.querySelector('[name="phone"]').value = data.phone;
+            document.querySelector('[name="email"]').value = data.email;
+            document.querySelector('[name="course"]').value = data.course_details;
+            document.querySelector('[name="joinDate"]').value = data.join_date ? data.join_date.split('T')[0] : '';
+            document.querySelector('[name="address"]').value = data.address;
+            alert("Student details loaded!");
         } else {
             alert("Student not found.");
         }
     }
 
-    // Logout function
     function logout() {
         localStorage.removeItem("isAdmin");
         window.location.href = "login.html";
