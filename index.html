@@ -17,6 +17,8 @@
         .btn-clear { background: #6b7280; }
         .btn-all { background: #f59e0b; }
         .btn-delete { background: #ef4444; }
+        #studentList { margin-top: 10px; font-size: 0.9rem; }
+        .student-item { border-bottom: 1px solid #eee; padding: 8px 0; }
     </style>
 </head>
 <body>
@@ -37,6 +39,11 @@
         <button class="btn-all" onclick="fetchAll()">Get All (Sorted by Day)</button>
         <button class="btn-delete" onclick="deleteStudent()">Delete Current Student</button>
         <button class="btn-clear" onclick="document.getElementById('admissionForm').reset()">Clear Form</button>
+    </div>
+
+    <div class="card">
+        <h2>Student List</h2>
+        <div id="studentList">Click "Get All" to view students here.</div>
     </div>
 
     <div class="card">
@@ -89,12 +96,23 @@
         } else { alert("Student not found."); }
     }
 
-    // Get All (Force refresh to prevent 304 caching)
+    // Get All & Display on Page
     async function fetchAll() {
         const res = await fetch('/api/get-all?t=' + Date.now());
         const data = await res.json();
-        console.table(data);
-        alert("Sorted list loaded! Check the Browser Console (Inspect > Console) to view the table.");
+        const container = document.getElementById('studentList');
+        container.innerHTML = ''; 
+
+        if (data.length > 0) {
+            data.forEach(student => {
+                const div = document.createElement('div');
+                div.className = 'student-item';
+                div.innerHTML = `<strong>${student.student_name}</strong> - Joined: ${student.join_date?.split('T')[0]}`;
+                container.appendChild(div);
+            });
+        } else {
+            container.innerHTML = "No students found.";
+        }
     }
 
     // Delete
