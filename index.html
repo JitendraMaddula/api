@@ -6,39 +6,53 @@
     <style>
         body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
         .container { max-width: 500px; margin: auto; }
+        .nav { margin-bottom: 20px; text-align: center; }
+        .nav a { color: #2563eb; text-decoration: none; font-weight: bold; }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        input, textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold; }
+        label { display: block; font-weight: bold; font-size: 0.8rem; color: #555; margin-bottom: 5px; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 10px; }
+        button { width: 100%; padding: 10px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold; margin-bottom: 5px; }
+        .btn-search { background: #059669; }
+        .btn-save { background: #2563eb; }
+        .btn-clear { background: #6b7280; }
+        .btn-all { background: #f59e0b; }
+        .btn-delete { background: #ef4444; }
     </style>
 </head>
 <body>
+
 <div class="container">
+    <div class="nav"><a href="index.html">🏠 Home / Dashboard</a></div>
+
     <div class="card">
-        <h2>Search</h2>
-        <input type="text" id="searchName" placeholder="Enter Name">
-        <button onclick="fetchStudent()" style="background:#059669;">Get Details</button>
-        <button onclick="document.getElementById('admissionForm').reset()" style="background:#6b7280; margin-top:5px;">Clear Form</button>
+        <h2>Search & Manage</h2>
+        <input type="text" id="searchName" placeholder="Enter Name to Search">
+        <button class="btn-search" onclick="fetchStudent()">Get Details</button>
+        <button class="btn-all" onclick="fetchAll()">Get All (Sorted by Day)</button>
+        <button class="btn-delete" onclick="deleteStudent()">Delete Current Student</button>
+        <button class="btn-clear" onclick="document.getElementById('admissionForm').reset()">Clear Form</button>
     </div>
 
     <div class="card">
         <h2>Admission Form</h2>
         <form id="admissionForm">
-            <input type="text" name="name" placeholder="Student Name" required>
-            <input type="number" name="age" placeholder="Age">
-            <input type="text" name="motherName" placeholder="Mother's Name">
-            <input type="text" name="fatherName" placeholder="Father's Name">
-            <input type="date" name="birthDate">
-            <input type="tel" name="phone" placeholder="Phone">
-            <input type="email" name="email" placeholder="Email">
-            <input type="text" name="course" placeholder="Course">
-            <input type="date" name="joinDate" required>
-            <textarea name="address" placeholder="Address"></textarea>
-            <button type="submit" style="background:#2563eb;">Save/Update Student</button>
+            <label>Student Name</label><input type="text" name="name" required>
+            <label>Age</label><input type="number" name="age">
+            <label>Mother's Name</label><input type="text" name="motherName">
+            <label>Father's Name</label><input type="text" name="fatherName">
+            <label>Date of Birth</label><input type="date" name="birthDate">
+            <label>Phone Number</label><input type="tel" name="phone">
+            <label>Email</label><input type="email" name="email">
+            <label>Course Details</label><input type="text" name="course">
+            <label>Date of Joining</label><input type="date" name="joinDate" required>
+            <label>Present Address</label><textarea name="address"></textarea>
+            <button type="submit" class="btn-save">Save/Update Student</button>
         </form>
     </div>
 </div>
 
 <script>
+    // Save or Update Student
     document.getElementById('admissionForm').onsubmit = async (e) => {
         e.preventDefault();
         const data = Object.fromEntries(new FormData(e.target));
@@ -47,13 +61,15 @@
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data) 
         });
-        alert(res.ok ? "Database updated!" : "Error. Check Console.");
+        alert(res.ok ? "Student saved/updated successfully!" : "Error saving student.");
     };
 
+    // Fetch Single Student
     async function fetchStudent() {
         const name = document.getElementById('searchName').value;
         const res = await fetch(`/api/get-student?name=${encodeURIComponent(name)}`);
         const data = await res.json();
+        
         if (data.student_name) {
             document.querySelector('[name="name"]').value = data.student_name;
             document.querySelector('[name="age"]').value = data.age || '';
@@ -67,6 +83,34 @@
             document.querySelector('[name="address"]').value = data.address || '';
         } else {
             alert("Student not found.");
+        }
+    }
+
+    // Fetch All Sorted
+    async function fetchAll() {
+        const res = await fetch('/api/get-all');
+        const data = await res.json();
+        console.table(data);
+        alert("Sorted list loaded! Check the Browser Console (Inspect > Console) to view the table.");
+    }
+
+    // Delete Student
+    async function deleteStudent() {
+        const name = document.querySelector('[name="name"]').value;
+        if (!name) return alert("Search for a student first!");
+        
+        if (confirm(`Are you sure you want to delete ${name}?`)) {
+            const res = await fetch('/api/delete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name })
+            });
+            if (res.ok) {
+                alert("Student deleted!");
+                document.getElementById('admissionForm').reset();
+            } else {
+                alert("Error deleting student.");
+            }
         }
     }
 </script>
