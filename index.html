@@ -58,6 +58,7 @@
 </div>
 
 <script>
+    // Save or Update
     document.getElementById('admissionForm').onsubmit = async (e) => {
         e.preventDefault();
         const data = Object.fromEntries(new FormData(e.target));
@@ -69,6 +70,7 @@
         alert(res.ok ? "Student saved/updated successfully!" : "Error saving student.");
     };
 
+    // Get Single Student
     async function fetchStudent() {
         const name = document.getElementById('searchName').value;
         const res = await fetch(`/api/get-student?name=${encodeURIComponent(name)}`);
@@ -87,13 +89,15 @@
         } else { alert("Student not found."); }
     }
 
+    // Get All (Force refresh to prevent 304 caching)
     async function fetchAll() {
-        const res = await fetch('/api/get-all');
+        const res = await fetch('/api/get-all?t=' + Date.now());
         const data = await res.json();
         console.table(data);
-        alert("Sorted list loaded! Check the Browser Console (Inspect > Console).");
+        alert("Sorted list loaded! Check the Browser Console (Inspect > Console) to view the table.");
     }
 
+    // Delete
     async function deleteStudent() {
         const name = document.querySelector('[name="name"]').value;
         if (!name) return alert("Search for a student first!");
@@ -104,87 +108,7 @@
                 body: JSON.stringify({ name })
             });
             if (res.ok) { alert("Student deleted!"); document.getElementById('admissionForm').reset(); }
-        }
-    }
-</script>
-</body>
-</html>        <h2>Admission Form</h2>
-        <form id="admissionForm">
-            <label>Student Name</label><input type="text" name="name" required>
-            <label>Age</label><input type="number" name="age">
-            <label>Mother's Name</label><input type="text" name="motherName">
-            <label>Father's Name</label><input type="text" name="fatherName">
-            <label>Date of Birth</label><input type="date" name="birthDate">
-            <label>Phone Number</label><input type="tel" name="phone">
-            <label>Email</label><input type="email" name="email">
-            <label>Course Details</label><input type="text" name="course">
-            <label>Date of Joining</label><input type="date" name="joinDate" required>
-            <label>Present Address</label><textarea name="address"></textarea>
-            <button type="submit" class="btn-save">Save/Update Student</button>
-        </form>
-    </div>
-</div>
-
-<script>
-    // Save or Update Student
-    document.getElementById('admissionForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const data = Object.fromEntries(new FormData(e.target));
-        const res = await fetch('/api/submit', { 
-            method: 'POST', 
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data) 
-        });
-        alert(res.ok ? "Student saved/updated successfully!" : "Error saving student.");
-    };
-
-    // Fetch Single Student
-    async function fetchStudent() {
-        const name = document.getElementById('searchName').value;
-        const res = await fetch(`/api/get-student?name=${encodeURIComponent(name)}`);
-        const data = await res.json();
-        
-        if (data.student_name) {
-            document.querySelector('[name="name"]').value = data.student_name;
-            document.querySelector('[name="age"]').value = data.age || '';
-            document.querySelector('[name="motherName"]').value = data.mother_name || '';
-            document.querySelector('[name="fatherName"]').value = data.father_name || '';
-            document.querySelector('[name="birthDate"]').value = data.birth_date ? data.birth_date.split('T')[0] : '';
-            document.querySelector('[name="phone"]').value = data.phone || '';
-            document.querySelector('[name="email"]').value = data.email || '';
-            document.querySelector('[name="course"]').value = data.course_details || '';
-            document.querySelector('[name="joinDate"]').value = data.join_date ? data.join_date.split('T')[0] : '';
-            document.querySelector('[name="address"]').value = data.address || '';
-        } else {
-            alert("Student not found.");
-        }
-    }
-
-    // Fetch All Sorted
-    async function fetchAll() {
-        const res = await fetch('/api/get-all');
-        const data = await res.json();
-        console.table(data);
-        alert("Sorted list loaded! Check the Browser Console (Inspect > Console) to view the table.");
-    }
-
-    // Delete Student
-    async function deleteStudent() {
-        const name = document.querySelector('[name="name"]').value;
-        if (!name) return alert("Search for a student first!");
-        
-        if (confirm(`Are you sure you want to delete ${name}?`)) {
-            const res = await fetch('/api/delete', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name })
-            });
-            if (res.ok) {
-                alert("Student deleted!");
-                document.getElementById('admissionForm').reset();
-            } else {
-                alert("Error deleting student.");
-            }
+            else { alert("Error deleting student."); }
         }
     }
 </script>
