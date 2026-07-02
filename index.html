@@ -7,12 +7,11 @@
         body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
         .container { max-width: 500px; margin: auto; }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .input-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; font-size: 0.8rem; color: #555; margin-bottom: 5px; }
-        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 10px; }
         button { width: 100%; padding: 10px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold; }
         .btn-search { background: #059669; }
-        .btn-save { background: #2563eb; margin-top: 10px; }
+        .btn-save { background: #2563eb; }
         .btn-logout { background: #dc2626; margin-top: 20px; }
     </style>
 </head>
@@ -20,15 +19,13 @@
 
 <div class="container">
     <script>
-        if (localStorage.getItem("isAdmin") !== "true") {
-            window.location.href = "login.html";
-        }
+        if (localStorage.getItem("isAdmin") !== "true") { window.location.href = "login.html"; }
     </script>
 
     <div class="card">
         <h2>Search Student</h2>
         <input type="text" id="searchName" placeholder="Enter Student Name">
-        <button class="btn-search" onclick="fetchStudent()" style="margin-top:10px;">Get Details</button>
+        <button class="btn-search" onclick="fetchStudent()">Get Details</button>
     </div>
 
     <div class="card">
@@ -47,7 +44,6 @@
             <button type="submit" class="btn-save">Save Student</button>
         </form>
     </div>
-
     <button class="btn-logout" onclick="logout()">Logout</button>
 </div>
 
@@ -72,15 +68,15 @@
         
         if (data.student_name) {
             document.querySelector('[name="name"]').value = data.student_name;
-            document.querySelector('[name="age"]').value = data.age;
-            document.querySelector('[name="motherName"]').value = data.mother_name;
-            document.querySelector('[name="fatherName"]').value = data.father_name;
+            document.querySelector('[name="age"]').value = data.age || '';
+            document.querySelector('[name="motherName"]').value = data.mother_name || '';
+            document.querySelector('[name="fatherName"]').value = data.father_name || '';
             document.querySelector('[name="birthDate"]').value = data.birth_date ? data.birth_date.split('T')[0] : '';
-            document.querySelector('[name="phone"]').value = data.phone;
-            document.querySelector('[name="email"]').value = data.email;
-            document.querySelector('[name="course"]').value = data.course_details;
+            document.querySelector('[name="phone"]').value = data.phone || '';
+            document.querySelector('[name="email"]').value = data.email || '';
+            document.querySelector('[name="course"]').value = data.course_details || '';
             document.querySelector('[name="joinDate"]').value = data.join_date ? data.join_date.split('T')[0] : '';
-            document.querySelector('[name="address"]').value = data.address;
+            document.querySelector('[name="address"]').value = data.address || '';
             alert("Student details loaded!");
         } else {
             alert("Student not found.");
@@ -92,6 +88,5 @@
         window.location.href = "login.html";
     }
 </script>
-
 </body>
 </html>
